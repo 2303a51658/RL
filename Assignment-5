@@ -1,0 +1,138 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMrbjjaaT3iih8IwJnJXuIX",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/2303a51658/RL/blob/main/Assignment-5\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "77666c86"
+      },
+      "source": [
+        "## Building a Random Agent for Reinforcement Learning Environments\n",
+        "\n",
+        "This section implements a simple Random Agent to interact with various Gymnasium (formerly OpenAI Gym) environments. The agent will choose actions randomly from the environment's action space and track the rewards received."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "c2e01c8d",
+        "outputId": "cf07621a-8f2e-4ead-b49f-a535ff3a53ba"
+      },
+      "source": [
+        "import gymnasium as gym\n",
+        "\n",
+        "def random_agent(env_name, episodes=5, render_mode=None):\n",
+        "    \"\"\"Runs a random agent on a specified Gymnasium environment for a given number of episodes.\"\"\"\n",
+        "    print(f\"\\n----- {env_name} -----\")\n",
+        "    env = gym.make(env_name, render_mode=render_mode)\n",
+        "\n",
+        "    rewards = []\n",
+        "    episode_lengths = []\n",
+        "\n",
+        "    for episode in range(1, episodes + 1):\n",
+        "        state, info = env.reset()\n",
+        "        total_reward = 0\n",
+        "        steps = 0\n",
+        "\n",
+        "        terminated = False\n",
+        "        truncated = False\n",
+        "\n",
+        "        while not (terminated or truncated):\n",
+        "            action = env.action_space.sample()  # Randomly select an action\n",
+        "\n",
+        "            next_state, reward, terminated, truncated, info = env.step(action)\n",
+        "\n",
+        "            total_reward += reward\n",
+        "            state = next_state\n",
+        "            steps += 1\n",
+        "\n",
+        "        rewards.append(total_reward)\n",
+        "        episode_lengths.append(steps)\n",
+        "\n",
+        "        print(f\"Episode {episode}: Total Reward = {total_reward}, Steps = {steps}\")\n",
+        "\n",
+        "    if rewards:\n",
+        "        average_reward = sum(rewards) / len(rewards)\n",
+        "        average_steps = sum(episode_lengths) / len(episode_lengths)\n",
+        "        print(f\"\\nAverage Reward = {average_reward:.2f}\")\n",
+        "        print(f\"Average Steps = {average_steps:.2f}\")\n",
+        "    else:\n",
+        "        print(\"No episodes completed.\")\n",
+        "\n",
+        "    env.close()\n",
+        "\n",
+        "# Run the random agent on the specified environments\n",
+        "random_agent(\"CartPole-v1\", episodes=5)\n",
+        "random_agent(\"MountainCar-v0\", episodes=5)\n",
+        "random_agent(\"FrozenLake-v1\", episodes=5, render_mode=\"ansi\") # render_mode='ansi' for text-based visualization"
+      ],
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "----- CartPole-v1 -----\n",
+            "Episode 1: Total Reward = 24.0, Steps = 24\n",
+            "Episode 2: Total Reward = 12.0, Steps = 12\n",
+            "Episode 3: Total Reward = 15.0, Steps = 15\n",
+            "Episode 4: Total Reward = 16.0, Steps = 16\n",
+            "Episode 5: Total Reward = 18.0, Steps = 18\n",
+            "\n",
+            "Average Reward = 17.00\n",
+            "Average Steps = 17.00\n",
+            "\n",
+            "----- MountainCar-v0 -----\n",
+            "Episode 1: Total Reward = -200.0, Steps = 200\n",
+            "Episode 2: Total Reward = -200.0, Steps = 200\n",
+            "Episode 3: Total Reward = -200.0, Steps = 200\n",
+            "Episode 4: Total Reward = -200.0, Steps = 200\n",
+            "Episode 5: Total Reward = -200.0, Steps = 200\n",
+            "\n",
+            "Average Reward = -200.00\n",
+            "Average Steps = 200.00\n",
+            "\n",
+            "----- FrozenLake-v1 -----\n",
+            "Episode 1: Total Reward = 0, Steps = 3\n",
+            "Episode 2: Total Reward = 0, Steps = 10\n",
+            "Episode 3: Total Reward = 0, Steps = 4\n",
+            "Episode 4: Total Reward = 0, Steps = 2\n",
+            "Episode 5: Total Reward = 0, Steps = 3\n",
+            "\n",
+            "Average Reward = 0.00\n",
+            "Average Steps = 4.40\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
