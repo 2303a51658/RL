@@ -1,0 +1,199 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/2303a51658/RL/blob/main/Assignment%20--07\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "\n",
+        "# Assignment 1: Calculate Undiscounted and Discounted Returns\n",
+        "\n",
+        "n = int(input(\"Enter the number of time steps: \"))\n",
+        "\n",
+        "rewards = []\n",
+        "for i in range(n):\n",
+        "    reward = float(input(f\"Enter reward for time step {i + 1}: \"))\n",
+        "    rewards.append(reward)\n",
+        "\n",
+        "gamma = float(input(\"Enter the discount factor (gamma): \"))\n",
+        "\n",
+        "# Calculate undiscounted return\n",
+        "undiscounted_return = sum(rewards)\n",
+        "\n",
+        "# Calculate discounted return\n",
+        "discounted_return = 0.0\n",
+        "for t in range(n):\n",
+        "    discounted_return += (gamma ** t) * rewards[t]\n",
+        "\n",
+        "print(\"\\nEntered reward values:\", rewards)\n",
+        "print(\"Undiscounted Return:\", undiscounted_return)\n",
+        "print(\"Discounted Return:\", round(discounted_return, 4))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "GO7eTSAPH-81",
+        "outputId": "fd11dd3d-af2a-40d9-83c7-cb773bc8547c"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Enter the number of time steps: 4\n",
+            "Enter reward for time step 1: 10\n",
+            "Enter reward for time step 2: 6\n",
+            "Enter reward for time step 3: 5\n",
+            "Enter reward for time step 4: 12\n",
+            "Enter the discount factor (gamma): 0.9\n",
+            "\n",
+            "Entered reward values: [10.0, 6.0, 5.0, 12.0]\n",
+            "Undiscounted Return: 33.0\n",
+            "Discounted Return: 28.198\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "\n",
+        "# grid_env_det.py\n",
+        "# Deterministic 2 x 3 Grid World MDP\n",
+        "\n",
+        "# State space\n",
+        "STATE_SPACE = [\"S0\", \"S1\", \"G\", \"S3\", \"S4\"]\n",
+        "\n",
+        "# Action space\n",
+        "ACTION_SPACE = [\"Up\", \"Down\", \"Left\", \"Right\"]\n",
+        "\n",
+        "# Grid coordinates\n",
+        "STATE_POSITIONS = {\n",
+        "    \"S0\": (0, 0),\n",
+        "    \"S1\": (0, 1),\n",
+        "    \"G\":  (0, 2),\n",
+        "    \"S3\": (1, 1),\n",
+        "    \"S4\": (1, 2)\n",
+        "}\n",
+        "\n",
+        "# Obstacle position\n",
+        "OBSTACLE = (1, 0)\n",
+        "\n",
+        "# Environment settings\n",
+        "DISCOUNT_FACTOR = 0.9\n",
+        "NORMAL_REWARD = -1\n",
+        "GOAL_REWARD = 10\n",
+        "OBSTACLE_REWARD = -5\n",
+        "\n",
+        "\n",
+        "def get_next_state(current_state, action):\n",
+        "    \"\"\"Return the next state for a given state and action.\"\"\"\n",
+        "\n",
+        "    if current_state not in STATE_POSITIONS:\n",
+        "        raise ValueError(\"Invalid current state\")\n",
+        "\n",
+        "    if action not in ACTION_SPACE:\n",
+        "        raise ValueError(\"Invalid action\")\n",
+        "\n",
+        "    if current_state == \"G\":\n",
+        "        return \"G\"\n",
+        "\n",
+        "    row, col = STATE_POSITIONS[current_state]\n",
+        "\n",
+        "    moves = {\n",
+        "        \"Up\": (-1, 0),\n",
+        "        \"Down\": (1, 0),\n",
+        "        \"Left\": (0, -1),\n",
+        "        \"Right\": (0, 1)\n",
+        "    }\n",
+        "\n",
+        "    dr, dc = moves[action]\n",
+        "    new_position = (row + dr, col + dc)\n",
+        "\n",
+        "    # Stay in the same state if the move is outside the grid\n",
+        "    if not (0 <= new_position[0] < 2 and\n",
+        "            0 <= new_position[1] < 3):\n",
+        "        return current_state\n",
+        "\n",
+        "    # Do not enter the obstacle\n",
+        "    if new_position == OBSTACLE:\n",
+        "        return current_state\n",
+        "\n",
+        "    # Find the state corresponding to the new position\n",
+        "    for state, position in STATE_POSITIONS.items():\n",
+        "        if position == new_position:\n",
+        "            return state\n",
+        "\n",
+        "    return current_state\n",
+        "\n",
+        "\n",
+        "def get_reward(current_state, action, next_state):\n",
+        "    \"\"\"Return the reward for the transition.\"\"\"\n",
+        "\n",
+        "    if current_state == \"G\":\n",
+        "        return 0\n",
+        "\n",
+        "    row, col = STATE_POSITIONS[current_state]\n",
+        "\n",
+        "    moves = {\n",
+        "        \"Up\": (-1, 0),\n",
+        "        \"Down\": (1, 0),\n",
+        "        \"Left\": (0, -1),\n",
+        "        \"Right\": (0, 1)\n",
+        "    }\n",
+        "\n",
+        "    dr, dc = moves[action]\n",
+        "    attempted_position = (row + dr, col + dc)\n",
+        "\n",
+        "    # Obstacle penalty\n",
+        "    if attempted_position == OBSTACLE:\n",
+        "        return OBSTACLE_REWARD\n",
+        "\n",
+        "    # Goal reward\n",
+        "    if next_state == \"G\":\n",
+        "        return GOAL_REWARD\n",
+        "\n",
+        "    # Normal movement reward\n",
+        "    return NORMAL_REWARD\n",
+        "\n",
+        "\n",
+        "def is_terminal(state):\n",
+        "    \"\"\"Check whether the state is terminal.\"\"\"\n",
+        "    return state == \"G\""
+      ],
+      "metadata": {
+        "id": "wdslX1msIRMq"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOBtbEagWq+z+LpV5MQX954",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
